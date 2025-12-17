@@ -12,6 +12,9 @@ export default function SharedExpensesApp() {
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(null);
 
+    // Constantes pour string magique
+    const REIMBURSEMENT_TAG = '(Remboursement)';
+
     // Charger depuis Supabase
     const loadExpenses = async () => {
         try {
@@ -138,43 +141,68 @@ export default function SharedExpensesApp() {
         setEditAmount('');
     };
 
-    const resetAll = async () => {
-        try {
-            // Supabase ne permet pas de "TRUNCATE" via l'API client par défaut sans RLS permissif ou fonction RPC.
-            // On va supprimer toutes les lignes une par une ou par batch si possible, 
-            // ou utiliser une condition qui matche tout (ex: id > 0 si id est int)
-            // Note: Delete sans where clause est souvent bloqué par défaut.
-            // On va supposer qu'on peut supprimer par ID.
+    const settleUp = async () => {
+        if (!whoOwes || amountOwed <= 0) return;
 
-            // Alternative clean: supprimer tout ce qui a un ID non null
+        try {
+            // Créer une dépense spéciale qui compte comme remboursement
+            // Si Damien doit 500 et paie 500, ça s'ajoute comme "Damien (Remboursement)"
+            const reimbursement = {
+                amount: amountOwed,
+                person: `${whoOwes} ${REIMBURSEMENT_TAG}`,
+                date: new Date().toISOString()
+            };
+
             const { error } = await supabase
                 .from('expenses')
-                .delete()
-                .neq('id', -1); // Hack simple pour tout supprimer si la policy le permet
+                .insert([reimbursement]);
 
             if (error) throw error;
 
             setShowResetConfirm(false);
             loadExpenses();
         } catch (error) {
-            console.error('Erreur reset:', error);
-            alert('Erreur lors de la réinitialisation. Vérifiez les droits.');
+            console.error('Erreur remboursement:', error);
+            alert('Erreur lors du remboursement.');
         }
     };
 
     // Calculs
-    const tomiTotal = expenses
+    // 1. Dépenses partielles (frais)
+    const sharedExpenses = expenses.filter(exp => !exp.person.includes(REIMBURSEMENT_TAG));
+    // 2. Remboursements directs
+    const reimbursements = expenses.filter(exp => exp.person.includes(REIMBURSEMENT_TAG));
+
+    const tomiShared = sharedExpenses
         .filter(exp => exp.person === 'Tomi')
         .reduce((sum, exp) => sum + exp.amount, 0);
 
-    const damienTotal = expenses
+    const damienShared = sharedExpenses
         .filter(exp => exp.person === 'Damien')
         .reduce((sum, exp) => sum + exp.amount, 0);
 
-    const tomiOwed = damienTotal / 2;
-    const damienOwed = tomiTotal / 2;
+    // Ce que chacun "doit" sur les frais communs (la moitié de ce que l'autre a payé)
+    // Ex: Tomi a payé 1000. Damien doit 500.
+    const damienOwesOnShared = tomiShared / 2;
+    const tomiOwesOnShared = damienShared / 2;
 
-    const balance = damienOwed - tomiOwed;
+    // Balance brute sur les frais (Positive = Damien doit, Négative = Tomi doit)
+    let rawBalance = damienOwesOnShared - tomiOwesOnShared;
+
+    // Ajustement avec les remboursements
+    // Si Damien a remboursé, il réduit sa dette (donc on soustrait son remboursement à la balance)
+    const damienReimbursed = reimbursements
+        .filter(exp => exp.person.includes('Damien'))
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+    // Si Tomi a remboursé (donc donné de l'argent à Damien pour payer sa dette), on ajoute à la balance
+    const tomiReimbursed = reimbursements
+        .filter(exp => exp.person.includes('Tomi'))
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+    // Balance finale
+    const balance = rawBalance - damienReimbursed + tomiReimbursed;
+
     const whoOwes = balance > 0 ? 'Damien' : 'Tomi';
     const amountOwed = Math.abs(balance);
 
@@ -217,12 +245,12 @@ export default function SharedExpensesApp() {
                 <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="bg-blue-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600 mb-1">Tomi a payé</p>
-                            <p className="text-2xl font-bold text-blue-600">฿{tomiTotal.toFixed(2)}</p>
+                            <p className="text-sm text-gray-600 mb-1">Tomi a payé (Frais)</p>
+                            <p className="text-2xl font-bold text-blue-600">฿{tomiShared.toFixed(2)}</p>
                         </div>
                         <div className="bg-purple-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600 mb-1">Damien a payé</p>
-                            <p className="text-2xl font-bold text-purple-600">฿{damienTotal.toFixed(2)}</p>
+                            <p className="text-sm text-gray-600 mb-1">Damien a payé (Frais)</p>
+                            <p className="text-2xl font-bold text-purple-600">฿{damienShared.toFixed(2)}</p>
                         </div>
                     </div>
 
@@ -276,20 +304,21 @@ export default function SharedExpensesApp() {
                     </div>
                 </div>
 
-                {/* Bouton Reset */}
+                {/* Bouton Settle Up (Remboursement) */}
                 <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
                     {!showResetConfirm ? (
                         <button
+                            hidden={amountOwed < 0.01}
                             onClick={() => setShowResetConfirm(true)}
-                            className="w-full bg-red-50 text-red-600 hover:bg-red-100 font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+                            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform active:scale-95"
                         >
                             <RotateCcw className="w-5 h-5 mr-2" />
-                            Réinitialiser tout
+                            Équilibrer les comptes (Rembourser)
                         </button>
                     ) : (
                         <div>
                             <p className="text-center text-gray-700 mb-3 font-semibold">
-                                Êtes-vous sûr de vouloir tout effacer ?
+                                {whoOwes} rembourse ฿{amountOwed.toFixed(2)} à l'autre ?
                             </p>
                             <div className="grid grid-cols-2 gap-3">
                                 <button
@@ -299,10 +328,10 @@ export default function SharedExpensesApp() {
                                     Annuler
                                 </button>
                                 <button
-                                    onClick={resetAll}
-                                    className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                                    onClick={settleUp}
+                                    className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
                                 >
-                                    Confirmer
+                                    Confirmer le paiement
                                 </button>
                             </div>
                         </div>
@@ -382,9 +411,11 @@ export default function SharedExpensesApp() {
                                                     <p className="font-bold text-gray-800 text-lg">
                                                         ฿{expense.amount.toFixed(2)}
                                                     </p>
-                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${expense.person === 'Tomi' ? 'bg-blue-200 text-blue-800' : 'bg-purple-200 text-purple-800'
+                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${expense.person.includes(REIMBURSEMENT_TAG)
+                                                        ? 'bg-green-200 text-green-800'
+                                                        : expense.person === 'Tomi' ? 'bg-blue-200 text-blue-800' : 'bg-purple-200 text-purple-800'
                                                         }`}>
-                                                        {expense.person}
+                                                        {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
                                                     </span>
                                                 </div>
                                                 <p className="text-xs text-gray-500 mt-1">{formatDate(expense.date)}</p>
