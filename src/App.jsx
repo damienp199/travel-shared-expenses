@@ -142,13 +142,20 @@ export default function SharedExpensesApp() {
     };
 
     const settleUp = async () => {
-        if (!whoOwes || amountOwed <= 0) return;
+        // "amount" vient de l'input principal (celui utilisé pour ajouter des dépenses)
+        const value = parseFloat(amount);
+        if (isNaN(value) || value <= 0) {
+            alert('Veuillez entrer un montant à rembourser dans la case du haut.');
+            return;
+        }
+
+        if (!whoOwes) return;
 
         try {
             // Créer une dépense spéciale qui compte comme remboursement
             // Si Damien doit 500 et paie 500, ça s'ajoute comme "Damien (Remboursement)"
             const reimbursement = {
-                amount: amountOwed,
+                amount: value,
                 person: `${whoOwes} ${REIMBURSEMENT_TAG}`,
                 date: new Date().toISOString()
             };
@@ -159,6 +166,7 @@ export default function SharedExpensesApp() {
 
             if (error) throw error;
 
+            setAmount(''); // Reset input
             setShowResetConfirm(false);
             loadExpenses();
         } catch (error) {
@@ -204,6 +212,7 @@ export default function SharedExpensesApp() {
     const balance = rawBalance - damienReimbursed + tomiReimbursed;
 
     const whoOwes = balance > 0 ? 'Damien' : 'Tomi';
+    const receiver = whoOwes === 'Damien' ? 'Tomi' : 'Damien';
     const amountOwed = Math.abs(balance);
 
     const formatDate = (dateString) => {
@@ -313,12 +322,12 @@ export default function SharedExpensesApp() {
                             className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform active:scale-95"
                         >
                             <RotateCcw className="w-5 h-5 mr-2" />
-                            Équilibrer les comptes (Rembourser)
+                            Rembourser {receiver}
                         </button>
                     ) : (
                         <div>
                             <p className="text-center text-gray-700 mb-3 font-semibold">
-                                {whoOwes} rembourse ฿{amountOwed.toFixed(2)} à l'autre ?
+                                {whoOwes} rembourse ฿{amount ? amount : '...'} à {receiver} ?
                             </p>
                             <div className="grid grid-cols-2 gap-3">
                                 <button
@@ -331,7 +340,7 @@ export default function SharedExpensesApp() {
                                     onClick={settleUp}
                                     className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
                                 >
-                                    Confirmer le paiement
+                                    Confirmer
                                 </button>
                             </div>
                         </div>
