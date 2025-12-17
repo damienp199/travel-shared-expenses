@@ -278,53 +278,49 @@ export default function SharedExpensesApp() {
                                 {expenses.map(expense => (
                                     <div
                                         key={expense.id}
-                                        className={`group relative flex flex-col p-3 rounded-xl shadow-sm border border-opacity-50 transition-all ${expense.person.includes('Tomi')
+                                        className={`group relative flex items-stretch rounded-xl shadow-sm border border-opacity-50 overflow-hidden transition-all ${expense.person.includes('Tomi')
                                             ? 'bg-blue-50 border-blue-200'
                                             : 'bg-purple-50 border-purple-200'
                                             } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400' : ''}`}
                                     >
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="font-bold text-gray-800 text-lg">
-                                                        ฿{expense.amount.toFixed(2)}
-                                                    </span>
-                                                    <span className="text-xs font-medium opacity-75">
-                                                        {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
-                                                    </span>
-                                                </div>
-                                                <p className="text-[10px] text-gray-400 mt-1">{formatDate(expense.date)}</p>
+                                        <div className="flex-1 p-3 flex flex-col justify-center">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="font-bold text-gray-800 text-lg">
+                                                    ฿{expense.amount.toFixed(2)}
+                                                </span>
+                                                <span className="text-xs font-medium opacity-75">
+                                                    {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
+                                                </span>
                                             </div>
+                                            <p className="text-[10px] text-gray-400 mt-1">{formatDate(expense.date)}</p>
+                                        </div>
 
-                                            {deletingId === expense.id ? (
-                                                <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-5 absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl justify-end px-3">
-                                                    <span className="text-sm font-bold text-red-600">Supprimer ?</span>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={cancelDelete}
-                                                            className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-bold"
-                                                        >
-                                                            Non
-                                                        </button>
-                                                        <button
-                                                            onClick={() => deleteExpense(expense.id)}
-                                                            className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold"
-                                                        >
-                                                            Oui
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => confirmDelete(expense.id)}
+                                            className="w-12 flex items-center justify-center bg-black/5 hover:bg-red-100 transition-colors border-l border-black/5"
+                                        >
+                                            <Trash2 className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors" />
+                                        </button>
+
+                                        {deletingId === expense.id && (
+                                            <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm flex items-center justify-end px-3 gap-3 animate-in fade-in slide-in-from-right-5">
+                                                <span className="text-sm font-bold text-red-600">Supprimer ?</span>
+                                                <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => confirmDelete(expense.id)}
-                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                                        onClick={(e) => { e.stopPropagation(); cancelDelete(); }}
+                                                        className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-bold"
                                                     >
-                                                        <Trash2 className="w-5 h-5" />
+                                                        Non
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); deleteExpense(expense.id); }}
+                                                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold"
+                                                    >
+                                                        Oui
                                                     </button>
                                                 </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                                 <div ref={expensesEndRef} />
