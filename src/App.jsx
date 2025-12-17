@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Trash2, Edit2, RotateCcw, Plus, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
@@ -10,6 +10,7 @@ export default function SharedExpensesApp() {
     const [editAmount, setEditAmount] = useState('');
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(null);
+    const expensesEndRef = useRef(null);
 
     // Constantes pour string magique
     const REIMBURSEMENT_TAG = '(Remboursement)';
@@ -21,7 +22,7 @@ export default function SharedExpensesApp() {
             const { data, error } = await supabase
                 .from('expenses')
                 .select('*')
-                .order('date', { ascending: false });
+                .order('date', { ascending: true });
 
             if (error) throw error;
 
@@ -52,6 +53,11 @@ export default function SharedExpensesApp() {
             subscription.unsubscribe();
         };
     }, []);
+
+    // Auto-scroll à la fin de la liste quand expenses change
+    useEffect(() => {
+        expensesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [expenses]);
 
     const addExpense = async (person) => {
         const value = parseFloat(amount);
@@ -238,10 +244,10 @@ export default function SharedExpensesApp() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-20">
-            <div className="max-w-md mx-auto">
-                {/* Sticky Header Section */}
-                <div className="sticky top-0 z-20 p-4 pb-2 bg-gradient-to-br from-blue-50/95 to-indigo-100/95 backdrop-blur-sm -mx-0.5">
+
+        <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
+            <div className="flex-1 overflow-y-auto p-4 pb-32">
+                <div className="max-w-md mx-auto">
                     {errorMessage && (
                         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm">
                             <div className="flex items-center">
@@ -252,194 +258,131 @@ export default function SharedExpensesApp() {
                         </div>
                     )}
 
-                    {/* Unified Card: Totals + Balance + Actions */}
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden mb-6 border border-white/50">
-                        <div className="p-5">
-                            {/* 1. Totaux compacts */}
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div className="bg-blue-50 rounded-lg p-3 text-center">
-                                    <p className="text-xs text-gray-500 mb-0.5">Tomi a payé</p>
-                                    <p className="text-lg font-bold text-blue-600">฿{tomiShared.toFixed(0)}</p>
-                                </div>
-                                <div className="bg-purple-50 rounded-lg p-3 text-center">
-                                    <p className="text-xs text-gray-500 mb-0.5">Damien a payé</p>
-                                    <p className="text-lg font-bold text-purple-600">฿{damienShared.toFixed(0)}</p>
-                                </div>
-                            </div>
-
-                            {/* 2. Balance (Focus central) */}
-                            <div className={`rounded-xl p-3 text-center mb-5 ${amountOwed < 0.01 ? 'bg-green-50' : 'bg-gradient-to-r from-orange-50 to-red-50'}`}>
-                                {amountOwed < 0.01 ? (
-                                    <p className="text-green-700 font-bold">Tout est équilibré ! 🎉</p>
-                                ) : (
-                                    <div>
-                                        <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Balance actuelle</p>
-                                        <p className="text-2xl font-extrabold text-gray-800">
-                                            {whoOwes} doit <span className="text-orange-600">฿{amountOwed.toFixed(2)}</span>
-                                        </p>
-                                        {whoOwes === 'Tomi' && amountOwed >= 3000 && (
-                                            <p className="text-sm text-pink-500 mt-1 italic font-medium animate-pulse">
-                                                ✨ Tomi, tu me dois une bargirl 💃
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* 3. Actions (Input + Boutons) */}
-                            <div className="space-y-3">
-                                <input
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    placeholder="Montant (฿)"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xl text-center font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder:font-normal"
-                                    step="0.01"
-                                    inputMode="decimal"
-                                />
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button
-                                        onClick={() => addExpense('Tomi')}
-                                        disabled={!isAmountValid}
-                                        className={`bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center shadow-sm ${isAmountValid ? 'hover:bg-blue-600 active:scale-95 shadow-blue-200' : 'opacity-40 cursor-not-allowed'}`}
-                                    >
-                                        <Plus className="w-5 h-5 mr-1" />
-                                        Tomi
-                                    </button>
-                                    <button
-                                        onClick={() => addExpense('Damien')}
-                                        disabled={!isAmountValid}
-                                        className={`bg-purple-500 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center shadow-sm ${isAmountValid ? 'hover:bg-purple-600 active:scale-95 shadow-purple-200' : 'opacity-40 cursor-not-allowed'}`}
-                                    >
-                                        <Plus className="w-5 h-5 mr-1" />
-                                        Damien
-                                    </button>
-                                </div>
-
-                                {/* Bouton Rembourser contextuel */}
-                                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${amountOwed >= 0.01 ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <button
-                                        disabled={!isAmountValid}
-                                        onClick={settleUp}
-                                        className={`w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center shadow-sm ${isAmountValid ? 'hover:bg-green-600 active:scale-95 shadow-green-200' : 'opacity-40 cursor-not-allowed'}`}
-                                    >
-                                        <RotateCcw className="w-5 h-5 mr-2" />
-                                        Rembourser {receiver}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> {/* End Sticky Header */}
-
-                {/* Scrollable Content Container */}
-                <div className="px-4">
-
-
-
-                    {/* Historique */}
-                    <div className="bg-white rounded-lg shadow-lg p-6">
+                    {/* Historique (Style Chat) */}
+                    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
                         <div className="flex justify-between items-center mb-3">
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                                 Historique ({expenses.length})
                             </h2>
-                            <button onClick={loadExpenses} className="text-gray-400 hover:text-indigo-600">
+                            <button onClick={loadExpenses} className="text-gray-400 hover:text-indigo-600 transition-colors">
                                 <RefreshCw className="w-4 h-4" />
                             </button>
                         </div>
 
                         {expenses.length === 0 ? (
-                            <div className="text-center py-8 text-gray-400">
+                            <div className="text-center py-12 text-gray-400">
                                 <p>Aucune dépense enregistrée</p>
                             </div>
                         ) : (
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 {expenses.map(expense => (
                                     <div
                                         key={expense.id}
-                                        className={`flex items-center justify-between p-3 rounded-lg border-l-4 transition-all ${expense.person === 'Tomi'
-                                            ? 'bg-blue-50 border-blue-500'
-                                            : 'bg-purple-50 border-purple-500'
-                                            }`}
+                                        className={`flex flex-col p-3 rounded-xl shadow-sm border border-opacity-50 transition-all ${expense.person.includes('Tomi')
+                                            ? 'bg-blue-50 border-blue-200 ml-8' // Tomi à droite (façon chat) ou indenté
+                                            : 'bg-purple-50 border-purple-200 mr-8' // Damien à gauche
+                                            } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 mx-8 !border-l-4 !border-green-400' : ''}`}
                                     >
-                                        {editingId === expense.id ? (
-                                            <div className="flex-1 flex items-center gap-2 animate-in fade-in">
-                                                <input
-                                                    type="number"
-                                                    value={editAmount}
-                                                    onChange={(e) => setEditAmount(e.target.value)}
-                                                    className="flex-1 px-2 py-1 border border-gray-300 rounded"
-                                                    step="0.01"
-                                                    autoFocus
-                                                />
-                                                <button
-                                                    onClick={() => saveEdit(expense.id)}
-                                                    className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
-                                                >
-                                                    ✓
-                                                </button>
-                                                <button
-                                                    onClick={cancelEdit}
-                                                    className="bg-gray-400 text-white px-3 py-1 rounded text-sm hover:bg-gray-500"
-                                                >
-                                                    ✕
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="font-bold text-gray-800 text-lg">
+                                                        ฿{expense.amount.toFixed(2)}
+                                                    </span>
+                                                    <span className="text-xs font-medium opacity-75">
+                                                        {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[10px] text-gray-400 mt-1">{formatDate(expense.date)}</p>
+                                            </div>
+
+                                            {/* Actions visibles au survol ou clic (simplifié ici) */}
+                                            <div className="flex gap-1 opacity-60">
+                                                <button onClick={() => deleteExpense(expense.id)} className="p-1 hover:text-red-500">
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
-                                        ) : deletingId === expense.id ? (
-                                            <div className="flex-1 flex items-center justify-between animate-in fade-in gap-2">
-                                                <p className="text-sm text-red-600 font-medium">Supprimer ?</p>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => deleteExpense(expense.id)}
-                                                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 font-medium"
-                                                    >
-                                                        Oui
-                                                    </button>
-                                                    <button
-                                                        onClick={cancelDelete}
-                                                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 font-medium"
-                                                    >
-                                                        Non
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-baseline pr-2">
-                                                        <p className="font-bold text-gray-800 text-lg">
-                                                            ฿{expense.amount.toFixed(2)}
-                                                        </p>
-                                                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${expense.person.includes(REIMBURSEMENT_TAG)
-                                                            ? 'bg-green-200 text-green-800'
-                                                            : expense.person === 'Tomi' ? 'bg-blue-200 text-blue-800' : 'bg-purple-200 text-purple-800'
-                                                            }`}>
-                                                            {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 mt-1">{formatDate(expense.date)}</p>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => startEdit(expense)}
-                                                        className="text-gray-400 hover:text-blue-600 p-1 transition-colors"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => confirmDelete(expense.id)}
-                                                        className="text-gray-400 hover:text-red-600 p-1 transition-colors"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
+                                        </div>
                                     </div>
                                 ))}
+                                <div ref={expensesEndRef} />
                             </div>
                         )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Controls (Fixed) */}
+            <div className="bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30">
+                <div className="max-w-md mx-auto p-4 pb-8"> {/* pb-8 for iOS home bar */}
+                    {/* 2. Balance (Compacte) */}
+                    <div className="flex justify-between items-center mb-4 px-1">
+                        <div className="text-xs text-gray-500">
+                            <span className="block text-[10px] uppercase">Tomi a payé</span>
+                            <span className="font-bold text-blue-600">฿{tomiShared.toFixed(0)}</span>
+                        </div>
+
+                        <div className={`px-4 py-1.5 rounded-full text-center ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-800'}`}>
+                            {amountOwed < 0.01 ? (
+                                <span className="text-xs font-bold">Équilibré ✅</span>
+                            ) : (
+                                <span className="text-sm font-bold flex flex-col leading-tight">
+                                    <span className="text-[10px] font-normal uppercase opacity-75">{whoOwes} doit</span>
+                                    <span>฿{amountOwed.toFixed(2)}</span>
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="text-xs text-gray-500 text-right">
+                            <span className="block text-[10px] uppercase">Damien a payé</span>
+                            <span className="font-bold text-purple-600">฿{damienShared.toFixed(0)}</span>
+                        </div>
+                    </div>
+
+                    {/* 3. Actions (Input + Boutons) */}
+                    <div className="flex gap-3 items-stretch">
+                        <div className="relative flex-1">
+                            <input
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                placeholder="Montant"
+                                className="w-full h-full pl-4 pr-2 bg-gray-100 border-0 rounded-xl text-lg font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                                step="0.01"
+                                inputMode="decimal"
+                            />
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => addExpense('Tomi')}
+                                disabled={!isAmountValid}
+                                className={`flex flex-col items-center justify-center w-16 h-14 bg-blue-500 text-white rounded-xl transition duration-200 ${isAmountValid ? 'active:scale-95' : 'opacity-40'}`}
+                            >
+                                <span className="text-[10px] uppercase font-bold opacity-80">Tomi</span>
+                                <Plus className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => addExpense('Damien')}
+                                disabled={!isAmountValid}
+                                className={`flex flex-col items-center justify-center w-16 h-14 bg-purple-500 text-white rounded-xl transition duration-200 ${isAmountValid ? 'active:scale-95' : 'opacity-40'}`}
+                            >
+                                <span className="text-[10px] uppercase font-bold opacity-80">Damien</span>
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Bouton Rembourser (Glissant) */}
+                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${amountOwed >= 0.01 ? 'max-h-12 mt-3 opacity-100' : 'max-h-0 mt-0 opacity-0'}`}>
+                        <button
+                            disabled={!isAmountValid}
+                            onClick={settleUp}
+                            className={`w-full bg-green-500 text-white font-bold text-sm py-2.5 px-4 rounded-xl flex items-center justify-center ${isAmountValid ? 'active:scale-95' : 'opacity-40'}`}
+                        >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            Rembourser {receiver}
+                        </button>
                     </div>
                 </div>
             </div>
