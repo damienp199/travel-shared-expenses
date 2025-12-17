@@ -216,10 +216,6 @@ export default function SharedExpensesApp() {
     // Balance finale
     const balance = rawBalance - damienReimbursed + tomiReimbursed;
 
-    // Totaux pour affichage (Frais + Remboursements)
-    const tomiTotalDisplay = tomiShared + tomiReimbursed;
-    const damienTotalDisplay = damienShared + damienReimbursed;
-
     const whoOwes = balance > 0 ? 'Damien' : 'Tomi';
     const receiver = whoOwes === 'Damien' ? 'Tomi' : 'Damien';
     const amountOwed = Math.abs(balance);
@@ -340,12 +336,7 @@ export default function SharedExpensesApp() {
             <div className="bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30">
                 <div className="max-w-md mx-auto p-4 pb-8"> {/* pb-8 for iOS home bar */}
                     {/* 2. Balance (Compacte) */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="bg-blue-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
-                            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Tomi</span>
-                            <span className="font-extrabold text-xl text-blue-600">฿{tomiTotalDisplay.toFixed(0)}</span>
-                        </div>
-
+                    <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className={`rounded-2xl p-2 flex flex-col justify-center items-center text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
                             {amountOwed < 0.01 ? (
                                 <>
@@ -355,14 +346,14 @@ export default function SharedExpensesApp() {
                             ) : (
                                 <>
                                     <span className="text-[10px] font-bold uppercase opacity-60 tracking-wide text-orange-800">{whoOwes} doit</span>
-                                    <span className="font-black text-xl text-orange-600">฿{amountOwed.toFixed(0)}</span>
+                                    <span className="font-black text-2xl text-orange-600">฿{amountOwed.toFixed(0)}</span>
                                 </>
                             )}
                         </div>
 
-                        <div className="bg-purple-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
-                            <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wide">Damien</span>
-                            <span className="font-extrabold text-xl text-purple-600">฿{damienTotalDisplay.toFixed(0)}</span>
+                        <div className="bg-pink-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center border border-pink-100">
+                            <span className="text-[10px] font-bold text-pink-500 uppercase tracking-wide">Indice Bargirl 💃</span>
+                            <span className="font-black text-2xl text-pink-600">{(amountOwed / 3000).toFixed(2)}</span>
                         </div>
                     </div>
 
