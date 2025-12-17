@@ -236,7 +236,7 @@ export default function SharedExpensesApp() {
                                 <p className="text-xl font-bold text-orange-600">
                                     {whoOwes} doit ฿{amountOwed.toFixed(2)}
                                 </p>
-                                {whoOwes === 'Tomi' && amountOwed > 3000 && (
+                                {whoOwes === 'Tomi' && amountOwed >= 3000 && (
                                     <p className="text-sm text-pink-500 mt-2 italic font-medium animate-pulse">
                                         ✨ Tomi, tu me dois une bargirl 💃
                                     </p>
