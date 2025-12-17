@@ -288,7 +288,7 @@ export default function SharedExpensesApp() {
                                         <div className="flex-1 p-3 flex flex-col justify-center">
                                             <div className="flex items-baseline gap-2">
                                                 <span className="font-bold text-gray-800 text-lg">
-                                                    ฿{expense.amount.toFixed(2)}
+                                                    ฿{expense.amount.toFixed(0)}
                                                 </span>
                                                 <span className="text-xs font-medium opacity-75">
                                                     {expense.person.replace(REIMBURSEMENT_TAG, ' (Remb.)')}
@@ -348,8 +348,7 @@ export default function SharedExpensesApp() {
                             ) : (
                                 <span className="flex flex-col leading-tight">
                                     <span className="text-xs font-bold uppercase opacity-60 mb-1">{whoOwes} doit</span>
-                                    <span className="text-3xl font-black tracking-tight text-orange-600">฿{amountOwed.toFixed(0)}</span>
-                                    <span className="text-sm font-medium opacity-50">.{amountOwed.toFixed(2).split('.')[1]}</span>
+                                    <span className="text-2xl font-black tracking-tight text-orange-600">฿{amountOwed.toFixed(0)}</span>
                                 </span>
                             )}
                         </div>
