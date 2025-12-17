@@ -278,10 +278,12 @@ export default function SharedExpensesApp() {
                                 {expenses.map(expense => (
                                     <div
                                         key={expense.id}
-                                        className={`group relative flex items-stretch rounded-xl shadow-sm border border-opacity-50 overflow-hidden transition-all ${expense.person.includes('Tomi')
-                                            ? 'bg-blue-50 border-blue-200'
-                                            : 'bg-purple-50 border-purple-200'
-                                            } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400' : ''}`}
+                                        className={`group relative flex items-stretch rounded-xl shadow-sm border border-opacity-50 overflow-hidden transition-all ${expense.person.includes(REIMBURSEMENT_TAG)
+                                                ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400'
+                                                : expense.person.includes('Tomi')
+                                                    ? 'bg-blue-50 border-blue-200'
+                                                    : 'bg-purple-50 border-purple-200'
+                                            }`}
                                     >
                                         <div className="flex-1 p-3 flex flex-col justify-center">
                                             <div className="flex items-baseline gap-2">
