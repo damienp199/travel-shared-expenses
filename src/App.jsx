@@ -313,20 +313,21 @@ export default function SharedExpensesApp() {
                             Damien
                         </button>
                     </div>
+
+                    {/* Bouton Rembourser (intégré) */}
+                    {amountOwed >= 0.01 && (
+                        <button
+                            disabled={!isAmountValid}
+                            onClick={settleUp}
+                            className={`w-full mt-3 bg-green-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-green-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                        >
+                            <RotateCcw className="w-5 h-5 mr-2" />
+                            Rembourser {receiver}
+                        </button>
+                    )}
                 </div>
 
-                {/* Bouton Settle Up (Remboursement) */}
-                <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-                    <button
-                        hidden={amountOwed < 0.01}
-                        disabled={!isAmountValid}
-                        onClick={settleUp}
-                        className={`w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-green-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
-                    >
-                        <RotateCcw className="w-5 h-5 mr-2" />
-                        Rembourser {receiver}
-                    </button>
-                </div>
+
 
                 {/* Historique */}
                 <div className="bg-white rounded-lg shadow-lg p-6">
