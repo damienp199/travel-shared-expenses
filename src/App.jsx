@@ -216,6 +216,10 @@ export default function SharedExpensesApp() {
     // Balance finale
     const balance = rawBalance - damienReimbursed + tomiReimbursed;
 
+    // Totaux pour affichage (Frais + Remboursements)
+    const tomiTotalDisplay = tomiShared + tomiReimbursed;
+    const damienTotalDisplay = damienShared + damienReimbursed;
+
     const whoOwes = balance > 0 ? 'Damien' : 'Tomi';
     const receiver = whoOwes === 'Damien' ? 'Tomi' : 'Damien';
     const amountOwed = Math.abs(balance);
@@ -339,7 +343,7 @@ export default function SharedExpensesApp() {
                     <div className="grid grid-cols-3 gap-2 mb-4">
                         <div className="bg-blue-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
                             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Tomi</span>
-                            <span className="font-extrabold text-xl text-blue-600">฿{tomiShared.toFixed(0)}</span>
+                            <span className="font-extrabold text-xl text-blue-600">฿{tomiTotalDisplay.toFixed(0)}</span>
                         </div>
 
                         <div className={`rounded-2xl p-2 flex flex-col justify-center items-center text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
@@ -358,7 +362,7 @@ export default function SharedExpensesApp() {
 
                         <div className="bg-purple-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
                             <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wide">Damien</span>
-                            <span className="font-extrabold text-xl text-purple-600">฿{damienShared.toFixed(0)}</span>
+                            <span className="font-extrabold text-xl text-purple-600">฿{damienTotalDisplay.toFixed(0)}</span>
                         </div>
                     </div>
 
