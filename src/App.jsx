@@ -279,10 +279,10 @@ export default function SharedExpensesApp() {
                                     <div
                                         key={expense.id}
                                         className={`group relative flex items-stretch rounded-xl shadow-sm border border-opacity-50 overflow-hidden transition-all ${expense.person.includes(REIMBURSEMENT_TAG)
-                                                ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400'
-                                                : expense.person.includes('Tomi')
-                                                    ? 'bg-blue-50 border-blue-200'
-                                                    : 'bg-purple-50 border-purple-200'
+                                            ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400'
+                                            : expense.person.includes('Tomi')
+                                                ? 'bg-blue-50 border-blue-200'
+                                                : 'bg-purple-50 border-purple-200'
                                             }`}
                                     >
                                         <div className="flex-1 p-3 flex flex-col justify-center">
@@ -336,26 +336,27 @@ export default function SharedExpensesApp() {
             <div className="bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30">
                 <div className="max-w-md mx-auto p-4 pb-8"> {/* pb-8 for iOS home bar */}
                     {/* 2. Balance (Compacte) */}
-                    <div className="flex justify-between items-center mb-4 px-1">
-                        <div className="text-xs text-gray-500">
-                            <span className="block text-[10px] uppercase">Tomi a payé</span>
-                            <span className="font-bold text-blue-600">฿{tomiShared.toFixed(0)}</span>
+                    <div className="flex justify-between items-end mb-6 px-1">
+                        <div className="text-gray-500">
+                            <span className="block text-xs font-semibold mb-1 uppercase tracking-wider">Tomi a payé</span>
+                            <span className="font-extrabold text-2xl text-blue-600">฿{tomiShared.toFixed(0)}</span>
                         </div>
 
-                        <div className={`px-4 py-1.5 rounded-full text-center ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-800'}`}>
+                        <div className={`px-6 py-3 rounded-2xl text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
                             {amountOwed < 0.01 ? (
-                                <span className="text-xs font-bold">Équilibré ✅</span>
+                                <span className="text-sm font-bold">Équilibré ✅</span>
                             ) : (
-                                <span className="text-sm font-bold flex flex-col leading-tight">
-                                    <span className="text-[10px] font-normal uppercase opacity-75">{whoOwes} doit</span>
-                                    <span>฿{amountOwed.toFixed(2)}</span>
+                                <span className="flex flex-col leading-tight">
+                                    <span className="text-xs font-bold uppercase opacity-60 mb-1">{whoOwes} doit</span>
+                                    <span className="text-3xl font-black tracking-tight text-orange-600">฿{amountOwed.toFixed(0)}</span>
+                                    <span className="text-sm font-medium opacity-50">.{amountOwed.toFixed(2).split('.')[1]}</span>
                                 </span>
                             )}
                         </div>
 
-                        <div className="text-xs text-gray-500 text-right">
-                            <span className="block text-[10px] uppercase">Damien a payé</span>
-                            <span className="font-bold text-purple-600">฿{damienShared.toFixed(0)}</span>
+                        <div className="text-gray-500 text-right">
+                            <span className="block text-xs font-semibold mb-1 uppercase tracking-wider">Damien a payé</span>
+                            <span className="font-extrabold text-2xl text-purple-600">฿{damienShared.toFixed(0)}</span>
                         </div>
                     </div>
 
