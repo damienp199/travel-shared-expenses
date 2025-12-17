@@ -278,7 +278,7 @@ export default function SharedExpensesApp() {
                                 {expenses.map(expense => (
                                     <div
                                         key={expense.id}
-                                        className={`flex flex-col p-3 rounded-xl shadow-sm border border-opacity-50 transition-all ${expense.person.includes('Tomi')
+                                        className={`group relative flex flex-col p-3 rounded-xl shadow-sm border border-opacity-50 transition-all ${expense.person.includes('Tomi')
                                             ? 'bg-blue-50 border-blue-200'
                                             : 'bg-purple-50 border-purple-200'
                                             } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400' : ''}`}
@@ -296,12 +296,34 @@ export default function SharedExpensesApp() {
                                                 <p className="text-[10px] text-gray-400 mt-1">{formatDate(expense.date)}</p>
                                             </div>
 
-                                            {/* Actions visibles au survol ou clic (simplifié ici) */}
-                                            <div className="flex gap-1 opacity-60">
-                                                <button onClick={() => deleteExpense(expense.id)} className="p-1 hover:text-red-500">
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
+                                            {deletingId === expense.id ? (
+                                                <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-5 absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl justify-end px-3">
+                                                    <span className="text-sm font-bold text-red-600">Supprimer ?</span>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={cancelDelete}
+                                                            className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-bold"
+                                                        >
+                                                            Non
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteExpense(expense.id)}
+                                                            className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold"
+                                                        >
+                                                            Oui
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => confirmDelete(expense.id)}
+                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
