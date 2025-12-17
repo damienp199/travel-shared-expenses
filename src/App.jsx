@@ -336,26 +336,26 @@ export default function SharedExpensesApp() {
             <div className="bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30">
                 <div className="max-w-md mx-auto p-4 pb-8"> {/* pb-8 for iOS home bar */}
                     {/* 2. Balance (Compacte) */}
-                    <div className="flex justify-between items-end mb-6 px-1">
-                        <div className="text-gray-500">
-                            <span className="block text-xs font-semibold mb-1 uppercase tracking-wider">Tomi a payé</span>
-                            <span className="font-extrabold text-2xl text-blue-600">฿{tomiShared.toFixed(0)}</span>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="bg-blue-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
+                            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Tomi</span>
+                            <span className="font-extrabold text-xl text-blue-600">฿{tomiShared.toFixed(0)}</span>
                         </div>
 
-                        <div className={`px-6 py-3 rounded-2xl text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
+                        <div className={`rounded-2xl p-2 flex flex-col justify-center items-center text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
                             {amountOwed < 0.01 ? (
-                                <span className="text-sm font-bold">Équilibré ✅</span>
+                                <span className="text-xs font-bold leading-tight">Équilibré<br />✅</span>
                             ) : (
-                                <span className="flex flex-col leading-tight">
-                                    <span className="text-xs font-bold uppercase opacity-60 mb-1">{whoOwes} doit</span>
-                                    <span className="text-2xl font-black tracking-tight text-orange-600">฿{amountOwed.toFixed(0)}</span>
-                                </span>
+                                <>
+                                    <span className="text-[10px] font-bold uppercase opacity-60 tracking-wide text-orange-800">{whoOwes} doit</span>
+                                    <span className="font-black text-xl text-orange-600">฿{amountOwed.toFixed(0)}</span>
+                                </>
                             )}
                         </div>
 
-                        <div className="text-gray-500 text-right">
-                            <span className="block text-xs font-semibold mb-1 uppercase tracking-wider">Damien a payé</span>
-                            <span className="font-extrabold text-2xl text-purple-600">฿{damienShared.toFixed(0)}</span>
+                        <div className="bg-purple-50 rounded-2xl p-2 flex flex-col justify-center items-center text-center">
+                            <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wide">Damien</span>
+                            <span className="font-extrabold text-xl text-purple-600">฿{damienShared.toFixed(0)}</span>
                         </div>
                     </div>
 
