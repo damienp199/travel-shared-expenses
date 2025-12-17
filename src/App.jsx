@@ -8,7 +8,6 @@ export default function SharedExpensesApp() {
     const [editingId, setEditingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
     const [editAmount, setEditAmount] = useState('');
-    const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -167,7 +166,7 @@ export default function SharedExpensesApp() {
             if (error) throw error;
 
             setAmount(''); // Reset input
-            setShowResetConfirm(false);
+            setAmount(''); // Reset input
             loadExpenses();
         } catch (error) {
             console.error('Erreur remboursement:', error);
@@ -318,37 +317,15 @@ export default function SharedExpensesApp() {
 
                 {/* Bouton Settle Up (Remboursement) */}
                 <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-                    {!showResetConfirm ? (
-                        <button
-                            hidden={amountOwed < 0.01}
-                            disabled={!isAmountValid}
-                            onClick={() => setShowResetConfirm(true)}
-                            className={`w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-green-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
-                        >
-                            <RotateCcw className="w-5 h-5 mr-2" />
-                            Rembourser {receiver}
-                        </button>
-                    ) : (
-                        <div>
-                            <p className="text-center text-gray-700 mb-3 font-semibold">
-                                {whoOwes} rembourse ฿{amount ? amount : '...'} à {receiver} ?
-                            </p>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    onClick={() => setShowResetConfirm(false)}
-                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200"
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    onClick={settleUp}
-                                    className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
-                                >
-                                    Confirmer
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    <button
+                        hidden={amountOwed < 0.01}
+                        disabled={!isAmountValid}
+                        onClick={settleUp}
+                        className={`w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-green-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                    >
+                        <RotateCcw className="w-5 h-5 mr-2" />
+                        Rembourser {receiver}
+                    </button>
                 </div>
 
                 {/* Historique */}
