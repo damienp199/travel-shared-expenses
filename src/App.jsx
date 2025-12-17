@@ -214,6 +214,7 @@ export default function SharedExpensesApp() {
     const whoOwes = balance > 0 ? 'Damien' : 'Tomi';
     const receiver = whoOwes === 'Damien' ? 'Tomi' : 'Damien';
     const amountOwed = Math.abs(balance);
+    const isAmountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -298,14 +299,16 @@ export default function SharedExpensesApp() {
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={() => addExpense('Tomi')}
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center active:scale-95 transform"
+                            disabled={!isAmountValid}
+                            className={`bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-blue-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
                         >
                             <Plus className="w-5 h-5 mr-1" />
                             Tomi
                         </button>
                         <button
                             onClick={() => addExpense('Damien')}
-                            className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center active:scale-95 transform"
+                            disabled={!isAmountValid}
+                            className={`bg-purple-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-purple-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
                         >
                             <Plus className="w-5 h-5 mr-1" />
                             Damien
@@ -318,8 +321,9 @@ export default function SharedExpensesApp() {
                     {!showResetConfirm ? (
                         <button
                             hidden={amountOwed < 0.01}
+                            disabled={!isAmountValid}
                             onClick={() => setShowResetConfirm(true)}
-                            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform active:scale-95"
+                            className={`w-full bg-green-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center transform ${isAmountValid ? 'hover:bg-green-600 active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
                         >
                             <RotateCcw className="w-5 h-5 mr-2" />
                             Rembourser {receiver}
