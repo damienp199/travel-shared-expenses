@@ -279,9 +279,9 @@ export default function SharedExpensesApp() {
                                     <div
                                         key={expense.id}
                                         className={`flex flex-col p-3 rounded-xl shadow-sm border border-opacity-50 transition-all ${expense.person.includes('Tomi')
-                                            ? 'bg-blue-50 border-blue-200 ml-8' // Tomi à droite (façon chat) ou indenté
-                                            : 'bg-purple-50 border-purple-200 mr-8' // Damien à gauche
-                                            } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 mx-8 !border-l-4 !border-green-400' : ''}`}
+                                            ? 'bg-blue-50 border-blue-200'
+                                            : 'bg-purple-50 border-purple-200'
+                                            } ${expense.person.includes(REIMBURSEMENT_TAG) ? 'bg-green-50 border-green-200 !border-l-4 !border-green-400' : ''}`}
                                     >
                                         <div className="flex justify-between items-start">
                                             <div>
