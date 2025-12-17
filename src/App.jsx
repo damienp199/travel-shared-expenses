@@ -344,7 +344,10 @@ export default function SharedExpensesApp() {
 
                         <div className={`rounded-2xl p-2 flex flex-col justify-center items-center text-center shadow-sm ${amountOwed < 0.01 ? 'bg-green-100 text-green-700' : 'bg-orange-50 border border-orange-100 text-orange-800'}`}>
                             {amountOwed < 0.01 ? (
-                                <span className="text-xs font-bold leading-tight">Équilibré<br />✅</span>
+                                <>
+                                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-wide opacity-60">Balance</span>
+                                    <span className="font-extrabold text-lg text-green-700">Équilibrée</span>
+                                </>
                             ) : (
                                 <>
                                     <span className="text-[10px] font-bold uppercase opacity-60 tracking-wide text-orange-800">{whoOwes} doit</span>
