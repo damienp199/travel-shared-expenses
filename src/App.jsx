@@ -238,7 +238,7 @@ export default function SharedExpensesApp() {
                                 </p>
                                 {whoOwes === 'Tomi' && amountOwed > 3000 && (
                                     <p className="text-sm text-pink-500 mt-2 italic font-medium animate-pulse">
-                                        ✨ Tu me dois une bargirl 💃
+                                        ✨ Tomi, tu me dois une bargirl 💃
                                     </p>
                                 )}
                             </>
